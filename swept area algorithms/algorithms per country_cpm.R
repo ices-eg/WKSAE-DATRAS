@@ -28,7 +28,7 @@ HH[HH == -9] <- NA
 # Make a call_distance column that include calculations for NA values
 data_all <- HH %>%
   filter(HaulVal == "V") %>%
-  transform(call_distance = ifelse(!is.na(Distance), Distance, HaulDur/60*1852*GroundSpeed)) %>%
+  transform(call_distance = ifelse(!is.na(Distance), Distance, HaulDur/60*1852*GroundSpeed)) #%>%
   #tibble()
 
 
@@ -36,7 +36,7 @@ data_all <- HH %>%
 #   FILTER BY COUNTRY     #
 ###########################
 
-source("utilities.R")
+source("swept area algorithms/utilities.R")
 
 data_by <- by(data_all, data_all$Country, calculate_doorspread)
 
