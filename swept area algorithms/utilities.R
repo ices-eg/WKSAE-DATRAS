@@ -19,8 +19,8 @@ calculate_doorspread <- function(data) {
           WingSpread,
           ifelse(
             !is.na(DoorSpread),
-            0.1307 * 29.806 * Depth^0.1813 + 9.4306,
-            0.1307 * DoorSpread + 9.4306
+            9.4306 + 0.131 * DoorSpread,
+            15.72 + 0.038 * Depth
           )
         )
       )
@@ -64,8 +64,12 @@ calculate_doorspread <- function(data) {
           WingSpread,
           ifelse(
             SweepLngt <= 60,
-            5.867 + 0.206 * (79.386 - 33.695 * exp(-0.028 * Depth)),
-            4.9 + 0.166 * (104.502 - 316.682 * exp(-0.043 * Depth))
+            ifelse(!is.na(DoorSpread), 
+              5.867 + 0.206 * DoorSpread,
+              5.867 + 0.206 * call_door),
+            ifelse(!is.na(DoorSpread),
+              4.9 + 0.166 * DoorSpread,
+              4.9 + 0.166 * call_door)
           )
         )
       )
@@ -78,14 +82,17 @@ calculate_doorspread <- function(data) {
           case_when(
             Year <= 2004 ~ (29.544 * log10(Depth) + 14.116 * log10(Warplngt) + -3.456),
             Year %in% 2005:2014 ~ (31.165 * log10(Depth) + 0.2974 * log10(Warplngt) + 29.321),
-            Year %in% 2015:2016 ~ (31.165 * log10(Depth) + 0.2974 * log10(Warplngt) + 29.321),
+            Year %in% 2015:2016 ~ (28.947 * log10(Depth) + 23.372 * log10(Warplngt) - 32.476),
             Year > 2016 ~ (15.842 * log10(Depth) + 30.868 * log10(Warplngt) + -24.793)
           )
         ),
         call_wing = ifelse(
           !is.na(WingSpread),
           WingSpread,
-          0.1909 * call_door + 4.011
+           ifelse(
+            !is.na(DoorSpread),
+            0.1909 * DoorSpread + 4.011,
+            0.1909 * call_door + 4.011)
         )
       )
   } else if (country == "SE") {
@@ -120,28 +127,28 @@ calculate_doorspread <- function(data) {
           case_when(
             Year <= 2005 & is.na(Warplngt) & is.na(WingSpread) ~ (15.0306 * log(Depth) + 12.6399),
             Year <= 2005 & !is.na(Warplngt) & is.na(WingSpread) ~ (21.78 * log(Warplngt) - 47.2),
-            Year <= 2005 & is.na(Warplngt) & !is.na(WingSpread) ~ (4.616 * WingSpread - 15.966),
+           Year <= 2005 & !is.na(WingSpread) ~ (4.616 * WingSpread - 15.966),       
             Year = 2006 & is.na(Warplngt) & is.na(WingSpread) ~ (12.4680 * log(Depth) + 17.5865),
             Year = 2006 & !is.na(Warplngt) & is.na(WingSpread) ~ (16.4421 * log(Warplngt) - 24.4727),
-            Year = 2006 & is.na(Warplngt) & !is.na(WingSpread) ~ (3.8182 * WingSpread - 11.9066),
+             Year = 2006 & !is.na(WingSpread) ~ (3.8182 * WingSpread - 11.9066), 
             Year <= 2007 & is.na(Warplngt) & is.na(WingSpread) ~ (15.0306 * log(Depth) + 12.6399),
             Year <= 2007 & !is.na(Warplngt) & is.na(WingSpread) ~ (21.78 * log(Warplngt) - 47.2),
-            Year <= 2007 & is.na(Warplngt) & !is.na(WingSpread) ~ (4.616 * WingSpread - 15.966)
+            Year <= 2007 & !is.na(WingSpread) ~ (4.616 * WingSpread - 15.966)  
           )
         ),
         call_wing = ifelse(
           !is.na(WingSpread),
           WingSpread,
           case_when(
-            Year <= 2005 & is.na(Warplngt) & is.na(DoorSpread) ~ (15.0306 * log(Depth) + 12.6399),
-            Year <= 2005 & !is.na(Warplngt) & is.na(DoorSpread) ~ (21.78 * log(Warplngt) - 47.2),
-            Year <= 2005 & is.na(Warplngt) & !is.na(DoorSpread) ~ (4.616 * DoorSpread - 15.966),
+            Year <= 2005 & is.na(Warplngt) & is.na(DoorSpread) ~ (2.92489 * log(Depth) + 7.43486),
+            Year <= 2005 & !is.na(Warplngt) & is.na(DoorSpread) ~ (4.074 * log(Warplngt) - 3.137),
+            Year <= 2005 & !is.na(DoorSpread) ~ (0.1869 * DoorSpread + 5.7416),
             Year = 2006 & is.na(Warplngt) & is.na(WingSpread) ~ (3.1495 * log(Depth) + 8.2192),
             Year = 2006 & !is.na(Warplngt) & is.na(WingSpread) ~ (4.1885 * log(Warplngt) - 2.8637),
-            Year = 2006 & is.na(Warplngt) & !is.na(WingSpread) ~ (0.2242 * DoorSpread + 5.7889),
-            Year <= 2007 & is.na(Warplngt) & is.na(WingSpread) ~ (15.0306 * log(Depth) + 12.6399),
-            Year <= 2007 & !is.na(Warplngt) & is.na(WingSpread) ~ (21.78 * log(Warplngt) - 47.2),
-            Year <= 2007 & is.na(Warplngt) & !is.na(WingSpread) ~ (4.616 * DoorSpread - 15.966)
+            Year = 2006 & !is.na(WingSpread) ~ (0.2242 * DoorSpread + 5.7889), 
+            Year <= 2007 & is.na(Warplngt) & is.na(WingSpread) ~ (2.92489 * log(Depth) + 7.43486),
+            Year <= 2007 & !is.na(Warplngt) & is.na(WingSpread) ~ (4.074 * log(Warplngt) - 3.137),
+            Year <= 2007 & !is.na(DoorSpread) ~ (0.1869 * DoorSpread + 5.7416) 
           )
         )
       )
@@ -155,7 +162,7 @@ calculate_doorspread <- function(data) {
           ifelse(
             SweepLngt <= 50,
             -7.456 + 3.616 * WingSpread + 3.124 * log(Depth),
-            -0.441 + 10.009 * log(Warplngt) + 4.768 * log(Depth)
+            -7.935 + 5.123 * WingSpread + 2.366 * log(Depth)
           )
         ),
         call_wing = ifelse(
@@ -173,7 +180,7 @@ calculate_doorspread <- function(data) {
         call_door =
           ifelse(
             is.na(DoorSpread) & is.na(WingSpread) & SweepLngt <= 50,
-            -7.935 + (5.123 * call_wing) + 2.366 * log(Depth),
+            -0.441 + 10.009 * log(Warplngt) + 4.768 * log(Depth),
             call_door
           )
       )
